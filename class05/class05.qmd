@@ -1,0 +1,212 @@
+---
+title: "Class 5: Data Visualization with GGplot"
+author: "Christopher Leone (A16737124)"
+format: html
+toc: true
+---
+
+# Background
+
+There are many graphics systems available in R. These include "base" R and tones of add-on packages such as **ggplot2**.
+
+## GGplot vs. "Base" R
+
+Let's compare "base" and **ggplot2** briefly. We can use some example data that is built-in with R called `cars`:
+
+```{r}
+head(cars)
+```
+
+In base R, I can just call `plot()`:
+
+```{r}
+plot(cars)
+```
+
+How can we do this with **ggplot2?**
+
+First we need to install the package. We do this with `install.packages("ggplot2")`. Since I only need to do this once, I will do this in the base R console rather than in the .qmd window.
+
+> Key point: I only install packages in the R console, not within quarto documents or R scripts.
+
+Before I use any add-on package, I must load it up with a call to `library()`.
+
+```{r}
+library(ggplot2)
+```
+
+> I can also call a single function from an add-on using the function `addonName::function`.
+
+## GGplot Components
+
+Every ggplot has at least 3 things:
+
+- The **data** (in our case, `cars`)
+- The **aesthetics** (how the data maps to the plot)
+- The **geometries** (determines how the plot is drawn, such as lines, points...)
+
+```{r}
+ggplot(cars) +
+  aes(x=speed, y=dist) +
+  geom_point()
+```
+
+> For "simple" plots, ggplot is much more verbose than base R, but has nicer defaults and requires less arguments for formatting more complex plots.
+
+Adding a line to show the relationship between the different variables (i.e. add another "layer"):
+
+```{r}
+ggplot(cars) +
+  aes(x=speed, y=dist) +
+  geom_point() + 
+  geom_smooth(method="lm")
+```
+
+And, adding a title and subtitle to the plot:
+
+```{r}
+ggplot(cars) +
+  aes(x=speed, y=dist) +
+  geom_point() + 
+  geom_smooth(method="lm") + 
+  ggtitle(label = "My first ggplot2 Title", subtitle = "Woohooooooooooo")
+# can also use labs()
+```
+
+
+# Using Different aes and geoms Parameters
+
+Read input data into R.
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+
+> (Q) How many genes are in this dataset? 5196!
+
+```{r}
+length(genes$Gene)
+# Or, use nrow(gene)
+```
+
+> (Q) What are the column names?
+
+```{r}
+colnames(genes)
+```
+
+> (Q) How many "up" and "down" regulated genes are there?
+
+```{r}
+table(genes$State)
+round(table(genes$State)/nrow(genes) * 100, 2)
+```
+
+## Making a themed `genes` scatterplot with different `aes()`
+
+Create a scatterplot using `genes`. We will include a color scale and a theme.
+
+```{r}
+ggplot(genes) +
+  aes(x=Condition1, y=Condition2, col=State) +
+  scale_color_manual(values=c("navy","gray","maroon")) +
+  geom_point() +
+  labs(title = "Gene Expression Plot", 
+       subtitle = "Christopher Leone (A16731724)", 
+       caption = "BIMM 143",
+       x = "Control (no drug)",
+       y = "Drug Treated") +
+  theme(plot.background = element_rect(color = "maroon", fill = NA, linewidth = 3))
+```
+
+## Making Themed `cars` Plots with Different `geoms()`.
+
+Let's plot some aspects of the in-built `mtcars` dataset.
+
+> (Q) Scatterplot of `mpg` vs. `disp`.
+
+```{r}
+p1 <- ggplot(mtcars) +
+  aes(x=mpg, y=disp) + 
+  geom_point()
+p1
+```
+
+> (Q) Boxplot of `gear` vs `disp`
+
+```{r}
+p2 <- ggplot(mtcars) + 
+  aes(x=gear, y=disp, group=gear) + 
+  geom_boxplot()
+p2
+```
+ 
+> (Q) Barplot of `carb`
+
+```{r}
+p3 <- ggplot(mtcars) +
+  aes(x=carb) + 
+  geom_bar()
+p3
+```
+
+> (Q) Smooth of `disp` vs `qsec`
+
+```{r}
+p4 <- ggplot(mtcars) +
+  aes(x=disp, y=qsec) + 
+  geom_point() +
+  geom_smooth()
+p4
+```
+
+Now that I have all plots p1-p4, I want to combine these into one multi-pane figure. We can do that here using **Patchwork**:
+
+```{r}
+library(patchwork)
+((p1 | p2 | p3) / p4)
+```
+
+# Going further... The GapMinder Study
+
+```{r}
+# File location online
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+
+gapminder <- read.delim(url)
+```
+
+Taking a small peek at the data...
+
+```{r}
+head(gapminder)
+```
+
+> (Q) How many countries are in this dataset?
+
+```{r}
+length(table(gapminder$country))
+```
+
+## Making our initial plots...
+
+Let's start with a plot of GDP vs. Life Expectancy, colored by continent.
+
+```{r}
+ggplot(gapminder) +
+  aes(x=gdpPercap, y=lifeExp, col=continent) +
+  geom_point(alpha=0.5)
+```
+
+We can also facet the graph by a variable to make several panels. Let's sort the graph by continent...
+
+```{r}
+ggplot(gapminder) +
+  aes(x=gdpPercap, y=lifeExp, col=continent) +
+  geom_point(alpha=0.5) + 
+  facet_wrap(~continent) + 
+  theme_bw()
+```
+
