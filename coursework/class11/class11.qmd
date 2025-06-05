@@ -3,7 +3,6 @@ title: "Class 11: Protein Structure Prediction with AlphaFold"
 author: "Christopher Leone | A16731724"
 format: html
 toc: true
-title_block_banner: true
 ---
 
 ## Generating your own structure predictions
@@ -27,6 +26,9 @@ pdbs <- pdbaln(pdbfiles, fit=TRUE, exefile="msa")
 
 # Viewing the superposition
 library(bio3dview)
+```
+
+```{r, eval=FALSE}
 view.pdbs(pdbs)
 ```
 
