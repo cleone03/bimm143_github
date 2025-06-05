@@ -3,8 +3,8 @@ My classwork from [BIMM 143, Spring 2025](https://bioboot.github.io/bimm143_S25/
 
 <<<<<<< HEAD
 - 04: Intro to R 
-- 05: [Advanced Graphics with **ggplot2**](class05/class05.md) 
-- 06: R Functions
+- 05: [Advanced Graphics with **ggplot2**](coursework/class05/class05.md) 
+- 06: [R Functions](coursework/class05/class06.md)
 - 07: Machine Learning
 - 08: Breast Cancer Mini-Project
 - 09: Halloween Mini-Project
