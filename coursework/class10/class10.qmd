@@ -3,7 +3,6 @@ title: "Class 10 | Structural Bioinformatics Part 1"
 author: "Christopher Leone | A16731724"
 format: html
 toc: true
-title_block_banner: true
 ---
 
 ## Introduction to the RCSB Protein Data Bank (PDB)

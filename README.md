@@ -2,11 +2,11 @@
 My classwork from [BIMM 143, Spring 2025](https://bioboot.github.io/bimm143_S25/) at UC San Diego.
 
 - Class 04: Introduction to R
-- Class 05: [Advanced Graphics with **ggplot2**]() 
-- Class 06: R Functions
-- Class 07: Machine Learning
-- Class 08: **Breast Cancer** Mini-Project
-- Class 09: Halloween Mini-Project
+- Class 05: [Advanced Graphics with **ggplot2**](coursework/class05/class05.md) 
+- Class 06: [R Functions](coursework/class06/class06.md)
+- Class 07: [Machine Learning](coursework/class07/class07.md)
+- Class 08: [**Breast Cancer** Mini-Project](coursework/class08/class08.md)
+- Class 09: [Halloween Mini-Project](coursework/class09/class09.md)
 - Class 10: Structural Bioinformatics, Part 1
 - Class 11: Protein Structure Prediction with **AlphaFold**
 - Class 12: **N/A**
