@@ -1,0 +1,275 @@
+---
+title: "Class 13 | RNASeq Analysis"
+author: "Christopher Leone | A16731724"
+format: html
+toc: true
+---
+
+## Background
+
+Today we will analyze some RNA sequencing data on the effects of a common steroid drug on airway cell lines.
+
+There are two main inputs we need for this analysis:
+
+- `countData`: counts for genes in rows with experiments in the columns
+- `colData`: the metadatathat tells us about the design of the experiment.
+
+```{r, message=FALSE}
+# Let's (1) load the libraries:
+library(BiocManager)
+library(DESeq2)
+
+# And (2) import the files:
+counts <- read.csv("airway_scaledcounts.csv", row.names=1)
+metadata <-  read.csv("airway_metadata.csv")
+```
+
+> (Q1): How many genes are in this dataset?
+
+```{r}
+nrow(counts)
+```
+
+There are **38,694 genes** in this dataset.
+
+> (Q2): How many control cell lines do we have?
+
+```{r}
+table(metadata$dex)
+```
+
+There are 4 control cell lines in this table.
+
+## Toy Differential Gene Expression
+
+Let's try finding the average or mean of the "control" and "treated" columns and see if they differ.
+
+- First, we need to find al "control" columns
+- We need to extract just those columns
+- Calculate the `mean()` for each gene "control" values4
+
+```{r, message=FALSE}
+# I like the dplyr system, so I will use it here:
+library(dplyr)
+```
+
+```{r}
+# (1) Filtering for "control" rows only:
+control <- metadata %>% filter(dex=="control")
+control.counts <- counts %>% select(control$id) 
+
+# (2) Taking and storing the means, displaying the head
+control.mean <- rowSums(control.counts)/4
+head(control.mean)
+```
+
+> (Q3): Do the same for "treated: to get a `treated.mean`.
+
+```{r}
+# (1) Filtering for "treated" rows only:
+treated <- metadata %>% filter(dex=="treated")
+treated.counts <- counts %>% select(treated$id) 
+
+# (2) Taking and storing the means, displaying the head
+treated.mean <- rowSums(treated.counts)/4
+head(treated.mean)
+```
+
+> (Q4): And create a plot of `control.mean` vs `treated.mean`.
+
+Ultimately, I decided to put this on logarithmic axes due to the original plot showing most points overlapping. This gives us a much more useful plot.
+
+```{r}
+# Let's load the library and make a DF:
+library(ggplot2)
+means <- data.frame(control.mean, treated.mean)
+
+# Then make the plot:
+ggplot(means) + 
+  aes(x=control.mean, y=treated.mean) + 
+  geom_point(alpha=0.5) + 
+  scale_x_log10() + 
+  scale_y_log10()
+```
+
+A common "rule-of-thumb" is to focus on genes with a log2 "fold-change" of +/-2. This would indicate a significant up/down regulation.
+
+What if we wanted our axes on a `log2()` scale? Let's change our previous plot:
+
+```{r}
+# We will add a log2 fold-change to a table and make a base plot.
+means$log2 <- log2(means$treated.mean/means$control.mean)
+```
+
+> (Q5): Remove any "zero count" genes from our dataset for further analysis
+
+We end up with 21817 genes that do not have any zero values.
+
+```{r}
+# We have to omit anything with zero values
+to.keep <- rowSums(means[,1:2] == 0) == 0
+mycounts <- means[to.keep,]
+head(mycounts)
+```
+
+> (Q6): How many genes are upregulated? What about downregulated?
+
+There are 314 upregulated genes (according to our parameters), and 485 downregulated genes.
+
+```{r}
+sum(mycounts$log2 >= 2)
+sum(mycounts$log2 <= -2)
+```
+
+## DESeq2 Analysis
+
+Let's do this properly and consdier the stats—are the differences in the means significant? Let's use `DESeq2` for this.
+
+The first function we will use from this package sets up the input in the particular format that DESeq wants.
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = counts,
+                       colData = metadata,
+                       design = ~dex)
+```
+
+We can now run our DESeq analysis:
+
+```{r}
+dds <- DESeq(dds)
+res <-results(dds)
+head(res)
+```
+
+## Result Figure: Volcano Plots
+
+Here, we will be plotting the adjusted P-values (`padj`) vs the `log2fc`. We are looking for very small P-values.
+
+```{r}
+# To color the points:
+mycols = rep("black", nrow(res))
+mycols[res$log2FoldChange <= -2] <- "blue"
+mycols[res$log2FoldChange >= 2] <- "blue"
+mycols[res$padj >= 0.05] <- "black"
+
+# The plot:
+plot(res$log2FoldChange, -log(res$padj), col=mycols)
+
+# Finally, the boundaries of significant stats:
+abline(v=2, col="red")
+abline(v=-2, col="red")
+abline(h=-log(0.05), col="red")
+```
+
+Let's do better with a `ggplot()`:
+
+```{r}
+ggplot(as.data.frame(res)) +
+  aes(x=log2FoldChange, y=-log(padj)) +
+  geom_point(alpha=0.4, col=mycols) +
+  geom_vline(xintercept = c(-2, 2), col="darkgray") +
+  geom_hline(yintercept = -log(0.05), col="darkgray") +
+  theme_bw() +
+  labs(title = "Volcano Plot | DESeq Analysis Results", 
+       x="Log2 Fold Change", 
+       y="Adjusted P-value")
+```
+
+## Continued: Class 14
+
+What if we want to add gene symbols so we know what genes we are dealing with? We first need to "translate" between the ENSEMBL identifiers to their respective genes.
+
+Let's load some new packages from `BiocManager`: 
+
+```{r}
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+```
+
+What different database ID types can I translate between?
+
+```{r}
+# We will want to translate between ENSEMBL and SYMBOL.
+columns(org.Hs.eg.db)
+```
+
+So, we need to map between ENSEMBL and SYMBOL ID types to get the data we want. We will also add two more translations to show the gene names and their ENTREZ IDs.
+
+```{r}
+# Translation to gene symbols:
+res$symbol <- mapIds(x=org.Hs.eg.db,
+                     keys=rownames(res),
+                     keytype="ENSEMBL",
+                     column="SYMBOL")
+
+# Translation to gene names:
+res$genename <- mapIds(x=org.Hs.eg.db,
+                     keys=rownames(res),
+                     keytype="ENSEMBL",
+                     column="GENENAME")
+
+# Translation to gene ENTREZ IDs:
+res$entrezid <- mapIds(x=org.Hs.eg.db,
+                     keys=rownames(res),
+                     keytype="ENSEMBL",
+                     column="ENTREZID")
+
+# And a preview:
+head(res)
+```
+
+Be sure to save our annotated results to a file!
+
+```{r}
+write.csv(res, file="my_annotated_results.csv")
+```
+
+## Pathway Analysis
+
+First, we need to load some new packages from our library.
+
+```{r}
+library(pathview)
+library(gage)
+library(gageData)
+```
+
+Let's examine the gageData:
+
+```{r}
+data(kegg.sets.hs)
+
+# Examine the first 2 pathways in this kegg set for humans
+head(kegg.sets.hs, 2)
+```
+
+To run pathway analysis, we will use the `gage()` function and it requires a "vector of importance". We will use our `log2FC` results from `res`.
+
+```{r}
+foldchanges = res$log2FoldChange
+names(foldchanges) = res$entrezid
+head(foldchanges)
+
+# And finally, let's run gage!
+keggres = gage(foldchanges, gsets=kegg.sets.hs)
+```
+
+What is in these results?
+
+```{r}
+attributes(keggres)
+
+# What pathways overlap with what we have annotated?
+head(keggres$less)
+```
+
+And let's use the `pathview()` function to look at what the pathway looks like! Let's look at asthma, since that was what we have been investigating.
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id="hsa05310")
+```
+
+The image that was generated can be seen here: 
+
+![The Asthma pathway overlaps with our differentially expressed genes.](hsa05310.pathview.png)
+

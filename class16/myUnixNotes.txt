@@ -1,0 +1,37 @@
+Nano is a very basic text editor that is everywhere.
+
+Some important UNIX commands are as follows:
+
+- pwd: shows the working directory
+- cd: changes the directory
+- ls: lists the contents in a folder
+- mkdir: makes a new directory
+- touch: creates a basic .txt file
+- rm: deletes selected file **WARNING**
+- nano: opens Nano text editor
+- head: shows the top of a file
+- tail: shows the bottom of a file
+- less: page through a file
+- ps: running processes
+- kill (-9): force quit a process
+
+Useful shortcuts in UNIX:
+
+- "TAB": auto-complete phrase
+- "~": home in computer
+- "../": dropping to parent folder
+
+For the AWS:
+
+- Instance ID: i-02cc3f30e8fdcdb95 (bimm143-leone)
+- Run this command, if necessary, to ensure your key is not publicly viewable:
+    - chmod 400 "bimm143-leone.pem"
+- Connect to your instance using its Public DNS: (different each time)
+- Use this: ssh -i ~/Desktop/BIMM 143 | Rstudio/bimm143-leone.pem (CHECK ADDRESS)
+- To copy, change ssh -> scp
+    - scp -i ~/Desktop/BIMM 143 | Rstudio/class16/bimm143-leone.pem ubuntu@ec2-54-187-61-143.us-west-2.compute.amazonaws.com:/home/ubuntu/work/mm-second.x.zebrafish.tsv results
+
+Keyboard commands:
+
+- ^C: kill
+- ^Z: sleep

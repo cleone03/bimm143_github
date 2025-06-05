@@ -1,0 +1,4 @@
+# Class 17 Notes
+
+The CMD used to login: **ssh -i ~/Desktop/bimm143-leone.pem ubuntu@ec2-52-13-39-206.us-west-2.compute.amazonaws.com**
+
