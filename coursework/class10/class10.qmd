@@ -103,7 +103,7 @@ head(pdbseq(hsg))
 
 Now, I want to visualize the protein within my Quarto document, so we will make use of some packages.
 
-```{r}
+```{r, eval=FALSE}
 # Let's load two external packages...
 library(bio3dview)
 library(NGLVieweR)
@@ -115,7 +115,7 @@ view.pdb(hsg) |>
 
 Let's make it even more visually useful—let's highlight the catalytically active D25 residue.
 
-```{r}
+```{r, eval=FALSE}
 # Select the important ASP 25 residue
 sele <- atom.select(hsg, resno=25)
 
@@ -140,7 +140,7 @@ plot(m)
 
 The NMA plots hint that the greatest activity occurs between approximate residues 125-165. Let's take a look with some other views.
 
-```{r}
+```{r, eval=FALSE}
 view.nma(m)
 ```
 

@@ -9,10 +9,10 @@ My classwork from [BIMM 143, Spring 2025](https://bioboot.github.io/bimm143_S25/
 - Class 09: [Halloween Mini-Project](coursework/class09/class09.md)
 - Class 10: [Structural Bioinformatics, Part 1]()
 - Class 11: [Protein Structure Prediction with **AlphaFold**]()
-- Class 12: **N/A**
+- Class 12: **Genome Informatics (no link)**
 - Class 13: [**RNASeq** Analysis]()
 - Class 14: [**RNASeq** Mini-Project]()
-- Class 15: **N/A**
+- Class 15: **Setting up GitHub...**
 - Class 16: [Introduction to **UNIX**]()
 - Class 17: [Analyzing Sequencing Data with **UNIX and AWS**]()
 - Class 18: [**Pertussis** Mini-Project]()
