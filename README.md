@@ -16,5 +16,5 @@ My classwork from [BIMM 143, Spring 2025](https://bioboot.github.io/bimm143_S25/
 - Class 16: Introduction to **UNIX**
 - Class 17: [Analyzing Sequencing Data with **UNIX and AWS**](coursework/class17/class17.md)
 - Class 18: [**Pertussis** Mini-Project](coursework/class18/class18.md)
-- Class 19: [**Cancer Mutations** Mini-Project](coursework/class19/class19.md)
+- Class 19: [**Cancer Mutations** Mini-Project](coursework/class19/lab19.md)
 
