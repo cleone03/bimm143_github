@@ -1,0 +1,135 @@
+---
+title: "Class 6: R Functions"
+author: "Christopher Leone (A16731724)"
+toc: true
+format: html
+---
+
+## Introduction to Functions
+
+Let's start writing our first function to add some numbers.
+
+> Every R function has 3 important components:
+
+- (1) the name, we get to choose.
+- (2) input arguments (there could be any amount)
+- (3) function body (where the code is).
+
+```{r}
+add <- function(x, y){
+  x + y
+}
+```
+
+I can now just use this function, as shown here:
+
+```{r}
+x <- c(1:10)
+y <- c(11:20)
+add(x, y)
+```
+Functions can have "required" input arguments and "optional" input arguments. Optional arguments are defined with an "equals default value" (`y=10`) in the function declination.
+
+## Writing a function to return a DNA sequence of a user specified length.
+
+1) We can use the `sample()` function for ideas.
+
+```{r}
+# genDNA <- function(size=5){}
+students <- c("Jeff", "Jeremy", "Peter")
+sample(students, size=5, replace = TRUE)
+```
+
+2) Let's try using this function to create nucleotide sequences.
+
+```{r}
+# Must have "replace = TRUE" for repeats!
+bases <- c("A", "T", "C", "G")
+sample(bases, size=10, replace = TRUE)
+```
+
+3) Now we have a working snippet, so let's use it to generate our `function()`.
+
+```{r}
+genDNA <- function(size=10){
+  bases <- c("A", "T", "C", "G")
+sample(bases, size, replace = TRUE)
+}
+genDNA(50)
+```
+
+4) Finally, to polish the output so it returns a sequence such as "ATGCATA..." if we want, otherwise return the raw output. Here, I want the collapsed sequence:
+
+```{r}
+genDNA <- function(size=10, collapsed = FALSE){
+  bases <- c("A", "T", "C", "G")
+  seq <- sample(bases, size, replace = TRUE)
+  if(!collapsed) {
+    paste(seq)
+  } else {
+    paste(seq, collapse="")
+  }
+}
+genDNA(50, TRUE)
+```
+
+## Writing a function to return protein sequences of a user specified length.
+
+Similar to `genDNA()`, let's start using the sample function and build up from there. Main difference includes bringing the amino acids into play rather than 4 nucleotides.
+
+We can get the set of 20 natural amino acids from the **bio3d** package.
+
+```{r}
+head(bio3d::aa.table, 5)
+```
+
+Once called, let's use `aa.table` as our database for amino acids, and complete the function `genProt()`.
+
+```{r}
+genProt <- function(size=6, collapsed=TRUE){
+  amino <- bio3d::aa.table$aa1[1:20]
+  seq2 <- sample(amino, size, replace = TRUE)
+  if(collapsed) {
+    paste(seq2, collapse="")
+  } else {
+    paste(seq2)
+  }
+}
+genProt(size=25, TRUE)
+```
+
+Now, what if I wanted to generate a sequence of random length 6-12?
+
+```{r}
+genProt2 <- function(collapsed=TRUE){
+  # to set a random size of protein each time of length 6-12.
+  randomSize <- sample(c(6:12), 1)
+  
+  # our protein parameters
+  amino <- bio3d::aa.table$aa1[1:20]
+  seq3 <- sample(amino, size=randomSize, replace = TRUE)
+  
+  # do we want a collapsed AA sequence?
+  if(collapsed) {
+    paste0(seq3, collapse="")
+  } else {
+    paste(seq3)
+  }
+}
+genProt2(T)
+```
+
+And if I wanted to print protein sequences of all lengths between 6-12?
+
+```{r}
+prot <- sapply(6:12,FUN=genProt)
+prot
+```
+
+It would also be cool and useful if I could get these in FASTA format for easy searching. Let's combine the functions of both the `cat()` and `paste()` functions.
+
+```{r}
+fasta <- paste(">ID.", 6:12, "\n", prot, sep="")
+cat(fasta, sep="\n")
+```
+Through a BLASTp query, I found that proteins 6 & 7 are NOT unique and can be found matched in the database (100% coverage and identity), but proteins 8-12 are in fact unique!
