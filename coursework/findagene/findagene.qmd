@@ -1,0 +1,43 @@
+---
+title: "Find-a-Gene"
+format: html
+---
+
+# Loading Packages
+
+```{r}
+library(bio3d)
+```
+
+# Question 7: Sequence Identity Matrix + Heatmap 
+
+```{r}
+# Creating the Sequence Identity Matrix
+fa <- read.fasta("findagene.fa")
+sim <- seqidentity(fa)
+
+# Generating a Heatmap
+heatmap(sim, margins = c(12, 12), 
+        cexRow = 1, cexCol = 1)
+```
+
+# Question 8: Similar Atomic Resolution Structures
+
+```{r}
+# Translating a consensus sequence
+con <- consensus(fa)
+seq <- as.fasta(con$seq)
+
+# Performing BLAST
+blast <- blast.pdb(seq)
+
+# Using the three top hits: 
+pdb.annotate(ids = c("4O9S_A", "3FMZ_A", "6QBA_A"),
+             anno.terms = c("structureId","experimentalTechnique",
+                            "resolution","source"))
+```
+
+# Question 9: Molecular Figures using VMD
+
+
+
